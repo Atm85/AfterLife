@@ -1,0 +1,20 @@
+name: Afterlife
+main: atom\afterlife\Main
+version: 4.0.0
+api: 
+  - 3.6.1
+
+author: Atom
+
+commands:
+  profile:
+    description: "Shows PvP Stats"
+  stats:
+    description: "Shows PvP Stats"
+  setleaderboard: 
+    description: sets leader board that displays player stats
+    
+permissions:
+  afterlife.admin:
+    default: op
+    description: give permission to run command
