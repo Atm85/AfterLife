@@ -3,16 +3,20 @@
     <words>
       <w>checkplayer</w>
       <w>customui</w>
+      <w>evirion</w>
       <w>floatingtext</w>
+      <w>freepik</w>
       <w>initplayer</w>
       <w>leaderboard</w>
       <w>leaderboards</w>
       <w>levelup</w>
       <w>libasynql</w>
+      <w>nametag</w>
       <w>nopvp</w>
       <w>playerdata</w>
       <w>pocketmine</w>
       <w>statsui</w>
+      <w>virion</w>
     </words>
   </dictionary>
 </component>
