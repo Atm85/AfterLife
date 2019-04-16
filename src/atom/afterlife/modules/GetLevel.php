@@ -48,6 +48,8 @@ class GetLevel {
                         $this->level = $row["level"];
                     }
                 });
+
+            DataHandler::getDatabase()->waitAll();
         }
     }
 

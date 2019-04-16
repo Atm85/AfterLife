@@ -48,6 +48,8 @@ class GetStreak {
                         $this->streak = $row["streak"];
                     }
                 });
+
+            DataHandler::getDatabase()->waitAll();
         }
     }
 

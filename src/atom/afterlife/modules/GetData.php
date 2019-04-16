@@ -63,6 +63,7 @@ class GetData {
                     }
                 });
 
+            DataHandler::getDatabase()->waitAll();
         }
         arsort($this->stats, SORT_NUMERIC);
         $finalRankings = "";

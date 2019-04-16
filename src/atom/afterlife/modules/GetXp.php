@@ -57,6 +57,8 @@ class GetXp {
                         $this->totalXP = $row['totalXp'];
                     }
                 });
+
+            DataHandler::getDatabase()->waitAll();
         }
     }
 

@@ -60,6 +60,8 @@ class GetRatio {
                         $this->deaths = $row["deaths"];
                     }
                 });
+
+            DataHandler::getDatabase()->waitAll();
         }
     }
 

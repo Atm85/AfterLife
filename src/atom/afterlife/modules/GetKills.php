@@ -47,6 +47,8 @@ class GetKills{
                         $this->kills = $row["kills"];
                     }
                 });
+
+            DataHandler::getDatabase()->waitAll();
         }
     }
 

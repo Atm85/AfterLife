@@ -48,6 +48,8 @@ class GetDeaths {
                         $this->deaths = $row["deaths"];
                     }
                 });
+
+            DataHandler::getDatabase()->waitAll();
         }
     }
 
