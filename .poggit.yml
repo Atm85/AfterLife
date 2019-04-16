@@ -1,10 +1,12 @@
 --- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/Aurora-MC/AfterLife
 branches:
-- master
+  - master
 projects:
   AfterLife:
     path: ""
     libs:
-    - src: thebigsmileXD/customui/customui
-      version: ^3.0.0
+      - src: poggit/libasynql/libasynql
+        version: ^3.0
+      - src: thebigsmileXD/customui/customui
+        version: ^3.0.0
 ...
