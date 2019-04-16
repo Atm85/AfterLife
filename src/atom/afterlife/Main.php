@@ -66,7 +66,7 @@ class Main extends PluginBase {
      */
 	public function onEnable() : void {
 		self::$instance = $this;
-		$this->api = new API();
+		$this->api = new API($this);
 
 		$this->getServer()->getPluginManager()->registerEvents(new InitEvent($this), $this);
 		$this->getServer()->getPluginManager()->registerEvents(new DeathEvent($this), $this);

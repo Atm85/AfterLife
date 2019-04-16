@@ -26,8 +26,16 @@ class GetStreak {
     private $player = null;
     private $uuid = null;
 
-    public function __construct(Main $plugin, Player $player) {
+    public function __construct(Main $plugin) {
         $this->plugin = $plugin;
+    }
+
+    public function getStreak(Player $player) {
+        $this->query($player);
+        return $this->streak;
+    }
+
+    private function query(Player $player){
         $this->player = $player->getName();
         $this->uuid = $player->getUniqueId()->toString();
         $path = $this->getPath();
@@ -51,10 +59,6 @@ class GetStreak {
 
             DataHandler::getDatabase()->waitAll();
         }
-    }
-
-    public function getStreak() {
-        return $this->streak;
     }
 
     private function getPath() {

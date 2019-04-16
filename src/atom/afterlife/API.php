@@ -40,14 +40,39 @@ use atom\afterlife\modules\DeathCounter;
 
 class API {
 
+    /** @var API */
 	public static $instance;
+
+	/** @var GetData */
+	private $data;
+
+	/** @var GetKills */
+	private $killScore;
+
+	/** @var GetStreak */
+	private $streaks;
+
+	/** @var GetXp */
+	private $xp;
+
+    /** @var GetLevel */
+	private $level;
+
+    /** @var GetDeaths */
+	private $deaths;
 
 	public static function getInstance(): API{
 		return self::$instance;
 	}
 
-	public function __construct() {
+	public function __construct(Main $plugin) {
 		self::$instance = $this;
+		$this->data = new GetData($plugin);
+		$this->killScore = new GetKills($plugin);
+		$this->streaks = new GetStreak($plugin);
+		$this->xp = new GetXp($plugin);
+		$this->level = new GetLevel($plugin);
+		$this->deaths = new GetDeaths($plugin);
 	}
 
     public function getStats (Player $player):void {
@@ -78,8 +103,7 @@ class API {
 	 * @return GetData
 	 */
 	public function getData ($type):string {
-		$data = new GetData(Main::getInstance());
-		return $data->getData($type);
+		return $this->data->getData($type);
     }
     
     /**
@@ -89,8 +113,7 @@ class API {
      * @return int
      */
 	public function getKills (Player $player): ?int {
-		$data = new GetKills(Main::getInstance(), $player);
-		return $data->getKills();
+		return $this->killScore->getKills($player);
     }
     
     /**
@@ -100,8 +123,7 @@ class API {
 	 * @return int
 	 */
 	public function getStreak(Player $player): ?int {
-		$data = new GetStreak(Main::getInstance(), $player);
-		return $data->getStreak();
+		return $this->streaks->getStreak($player);
     }
     
     /**
@@ -111,8 +133,7 @@ class API {
 	 * @return int
 	 */
 	public function getNeededXp(Player $player): ?int {
-		$data = new GetXp(Main::getInstance(), $player);
-		return $data->getXp();
+		return $this->xp->getXp($player);
 	}
 
 	/**
@@ -122,8 +143,7 @@ class API {
 	 * @return int
 	 */
 	public function getTotalXp(Player $player): ?int {
-		$data = new GetXp(Main::getInstance(), $player);
-		return $data->getTotalXp();
+		return $this->xp->getTotalXp($player);
     }
     
     /**
@@ -133,8 +153,7 @@ class API {
      * @return int
      */
     public function getLevel(Player $player): ?int {
-		$data = new GetLevel(Main::getInstance(), $player);
-		return $data->getLevel();
+		return $this->level->getLevel($player);
     }
 
     /**
@@ -144,8 +163,7 @@ class API {
      * @return int
      */
 	public function getDeaths(Player $player): ?int {
-		$data = new GetDeaths(Main::getInstance(), $player);
-		return $data->getDeaths();
+		return $this->deaths->getDeaths($player);
     }
     
     /**

@@ -26,8 +26,16 @@ class GetDeaths {
     private $uuid = null;
 
 
-    public function __construct(Main $plugin, Player $player) {
+    public function __construct(Main $plugin) {
         $this->plugin = $plugin;
+    }
+
+    public function getDeaths(Player $player) {
+        $this->query($player);
+        return $this->deaths;
+    }
+
+    private function query(Player $player){
         $this->player = $player->getName();
         $this->uuid = $player->getUniqueId()->toString();
         $path = $this->getPath();
@@ -53,11 +61,7 @@ class GetDeaths {
         }
     }
 
-    public function getDeaths() {
-        return $this->deaths;
-    }
-
-    public function getPath() {
+    private function getPath() {
         return $this->plugin->getDataFolder() . "players/" . $this->player . ".yml";
     }
 

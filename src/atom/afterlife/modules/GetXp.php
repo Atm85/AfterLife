@@ -25,8 +25,21 @@ class GetXp {
     private $player = null;
     private $uuid = null;
 
-    public function __construct(Main $plugin, Player $player) {
+    public function __construct(Main $plugin) {
         $this->plugin = $plugin;
+    }
+
+    public function getXp(Player $player) {
+        $this->query($player);
+        return abs($this->plugin->getConfig()->get('xp-levelup-amount') - $this->xp);
+    }
+
+    public function getTotalXp(Player $player) {
+        $this->query($player);
+        return $this->totalXP;
+    }
+
+    private function query(Player $player){
         $this->player = $player->getName();
         $this->uuid = $player->getUniqueId()->toString();
         $path = $this->getPath();
@@ -62,15 +75,7 @@ class GetXp {
         }
     }
 
-    public function getXp() {
-        return abs($this->plugin->getConfig()->get('xp-levelup-amount') - $this->xp);
-    }
-
-    public function getTotalXp() {
-        return $this->totalXP;
-    }
-
-    public function getPath() {
+    private function getPath() {
         return $this->plugin->getDataFolder() . "players/" . $this->player . ".yml";
     }
 
