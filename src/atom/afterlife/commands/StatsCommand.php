@@ -38,11 +38,11 @@ class StatsCommand extends PluginCommand {
     public function execute(CommandSender $sender, string $cmd, array $args) {
         if ($sender instanceof Player) {
             if (!isset($args[0])) {
-                $this->plugin->getAPI()->getStats($sender);
+                $this->plugin->getAPI()->sendStats($sender);
             } else {
                 $target = $this->plugin->getServer()->getPlayerExact($args[0]);
                 if ($target !== null){
-                    $this->plugin->getAPI()->getStats($target);
+                    $this->plugin->getAPI()->sendStats($target);
                 } else {
                     $sender->sendMessage(TextFormat::RED . "Player is not online!");
                 }

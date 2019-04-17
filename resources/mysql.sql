@@ -22,7 +22,7 @@
             name, uuid ,kills, deaths, ratio, totalXP, neededXp, level, streak
           )
           values (
-            :name, :uuid, 0, 0, 0, 0, 0, 0, 0
+            :name, :uuid, 0, 0, 0, 0, 1000, 0, 0
           );
 -- #    }
 -- #  }
@@ -32,35 +32,8 @@
           SELECT COUNT(*) FROM afterlife WHERE name = :name;
 -- #    }
 -- #    { all
-          SELECT * FROM afterlife;
--- #    }
--- #    { deaths
 -- #      :uuid string
-          SELECT deaths FROM afterlife WHERE uuid = :uuid;
--- #    }
--- #    { kills
--- #      :uuid string
-          SELECT kills FROM afterlife WHERE uuid = :uuid;
--- #    }
--- #    { level
--- #      :uuid string
-          SELECT level FROM afterlife WHERE uuid = :uuid;
--- #    }
--- #    { ratio
--- #      :uuid string
-          SELECT ratio FROM afterlife WHERE uuid = :uuid;
--- #    }
--- #    { streak
--- #      :uuid string
-          SELECT streak FROM afterlife WHERE uuid = :uuid;
--- #    }
--- #    { neededXp
--- #      :uuid string
-          SELECT neededXp FROM afterlife WHERE uuid = :uuid;
--- #    }
--- #    { totalXp
--- #      :uuid string
-          SELECT totalXp FROM afterlife WHERE uuid = :uuid;
+          SELECT * FROM afterlife WHERE uuid = :uuid;
 -- #    }
 -- #  }
 -- #}

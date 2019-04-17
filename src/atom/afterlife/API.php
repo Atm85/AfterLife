@@ -14,6 +14,7 @@
 namespace atom\afterlife;
 
 # player instance
+use atom\afterlife\modules\GetStats;
 use pocketmine\Player;
 
 # utils
@@ -25,12 +26,6 @@ use atom\afterlife\handler\FormHandler as Form;
 
 # api
 use atom\afterlife\modules\GetData;
-use atom\afterlife\modules\GetKills;
-use atom\afterlife\modules\GetStreak;
-use atom\afterlife\modules\GetXp;
-use atom\afterlife\modules\GetLevel;
-use atom\afterlife\modules\GetDeaths;
-use atom\afterlife\modules\GetRatio;
 use atom\afterlife\modules\KillCounter;
 use atom\afterlife\modules\xpCalculator;
 use atom\afterlife\modules\LevelCounter;
@@ -46,20 +41,8 @@ class API {
 	/** @var GetData */
 	private $data;
 
-	/** @var GetKills */
-	private $killScore;
-
-	/** @var GetStreak */
-	private $streaks;
-
-	/** @var GetXp */
-	private $xp;
-
-    /** @var GetLevel */
-	private $level;
-
-    /** @var GetDeaths */
-	private $deaths;
+	/** @var GetStats */
+	private $stats;
 
 	public static function getInstance(): API{
 		return self::$instance;
@@ -68,33 +51,42 @@ class API {
 	public function __construct(Main $plugin) {
 		self::$instance = $this;
 		$this->data = new GetData($plugin);
-		$this->killScore = new GetKills($plugin);
-		$this->streaks = new GetStreak($plugin);
-		$this->xp = new GetXp($plugin);
-		$this->level = new GetLevel($plugin);
-		$this->deaths = new GetDeaths($plugin);
+		$this->stats = new GetStats($plugin);
 	}
 
-    public function getStats (Player $player):void {
+    public function sendStats (Player $player):void {
 		switch (Main::getInstance()->getConfig()->get("profile-method")) {
 			case "form":
 				Form::statsUi($player);
 				break;
 
 			case "standard":
-				$player->sendMessage(color::LIGHT_PURPLE."--------------------");
-				$player->sendMessage($player->getName()." stats\n\n");
-				$player->sendMessage(color::YELLOW."Current Win Streak ".color::GREEN.$this->getStreak($player)."\n\n");
-				$player->sendMessage(color::RED."Kills: ".color::GREEN.$this->getKills($player));
-				$player->sendMessage(color::RED."Deaths: ".color::GREEN.$this->getDeaths($player));
-				$player->sendMessage(color::RED."K/D Ratio: ".color::GREEN.$this->getKdr($player));
-				$player->sendMessage(color::RED."Level: ".color::GREEN.$this->getLevel($player));
-				$player->sendMessage(color::RED."Total XP: ".color::GREEN.$this->getTotalXp($player));
-				$player->sendMessage(color::RED."Xp needed to level up: ".color::GREEN.$this->getNeededXp($player));
-				$player->sendMessage(color::LIGHT_PURPLE."--------------------");
+			    $this->getStats($player, function ($data) use ($player){
+                    $player->sendMessage(color::LIGHT_PURPLE."--------------------");
+                    $player->sendMessage($player->getName()." stats\n\n");
+                    $player->sendMessage(color::YELLOW."Current Win Streak ".color::GREEN.$data['streak']."\n\n");
+                    $player->sendMessage(color::RED."Kills: ".color::GREEN.$data['kills']);
+                    $player->sendMessage(color::RED."Deaths: ".color::GREEN.$data['deaths']);
+                    $player->sendMessage(color::RED."K/D Ratio: ".color::GREEN.$data['kdr']);
+                    $player->sendMessage(color::RED."Level: ".color::GREEN.$data['level']);
+                    $player->sendMessage(color::RED."Xp to level: ".color::GREEN.$data['xpTo']);
+                    $player->sendMessage(color::RED."Total XP: ".color::GREEN.$data['totalXp']);
+                    $player->sendMessage(color::LIGHT_PURPLE."--------------------");
+                });
 				break;
 		}
 	}
+
+
+    /**
+     * Gets player stats
+     * @api
+     * @param Player $player
+     * @param callable $callback
+     */
+	public function getStats(Player $player, callable $callback) : void {
+	    $this->stats->getData($player, $callback);
+    }
 
     /**
 	 * Returns Player Data for leaderboards
@@ -105,78 +97,15 @@ class API {
 	public function getData ($type):string {
 		return $this->data->getData($type);
     }
-    
-    /**
-     * Returns Players kills
-     * @api
-     * @param $player
-     * @return int
-     */
-	public function getKills (Player $player): ?int {
-		return $this->killScore->getKills($player);
-    }
-    
-    /**
-	 * Returns Players Win Streak
-     * @api
-	 * @param $player
-	 * @return int
-	 */
-	public function getStreak(Player $player): ?int {
-		return $this->streaks->getStreak($player);
-    }
-    
-    /**
-	 * Returns Player Xp till level up
-     * @api
-	 * @param $player
-	 * @return int
-	 */
-	public function getNeededXp(Player $player): ?int {
-		return $this->xp->getXp($player);
-	}
 
-	/**
-	 * Returns Player total xp
-     * @api
-	 * @param $player
-	 * @return int
-	 */
-	public function getTotalXp(Player $player): ?int {
-		return $this->xp->getTotalXp($player);
-    }
-    
-    /**
-     * Returns player level
-     * @api
-     * @param $player
-     * @return int
-     */
-    public function getLevel(Player $player): ?int {
-		return $this->level->getLevel($player);
-    }
 
-    /**
-     * Returns Player death count
-     * @api
-     * @param Player $player
-     * @return int
-     */
-	public function getDeaths(Player $player): ?int {
-		return $this->deaths->getDeaths($player);
-    }
-    
-    /**
-     * Returns kills/death ratio
-     * @api
-     * @param $player
-     * @return int
-     */
-    public function getKdr(Player $player): ?int {
-		$data = new GetRatio(Main::getInstance(), $player);
-		return $data->getRatio();
-    }
-    
+
+
+
+
+
+
+
     /**
      * Adds 1 to the number of kills
      * @api

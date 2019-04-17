@@ -27,7 +27,6 @@ use xenialdan\customui\API as Form;
 use xenialdan\customui\elements\Button;
 use xenialdan\customui\windows\SimpleForm;
 
-# plugin instance - Main::getInstance()
 use atom\afterlife\Main;
 use atom\afterlife\API;
 
@@ -39,20 +38,22 @@ class FormHandler {
     public static function statsUi(Player $player){
 		switch (Server::getInstance()->getName()) {
 			case 'PocketMine-MP':
-				$ui = new SimpleForm($player->getName().' Stats',
-				color::YELLOW."\nCurrent Win Streak ".color::BLUE.API::getInstance()->getStreak($player)."\n\n".
-				color::RED."\nKills: ".color::GREEN.API::getInstance()->getKills($player).
-				color::RED."\nDeaths: ".color::GREEN.API::getInstance()->getDeaths($player).
-				color::RED."\nK/D Ratio: ".color::GREEN.API::getInstance()->getKdr($player).
-				color::RED."\n\n\nLevel: ".color::GREEN.API::getInstance()->getLevel($player).
-				color::RED."\nTotal XP: ".color::GREEN.API::getInstance()->getTotalXp($player).
-				color::RED."\nXp needed to level up: ".color::GREEN.API::getInstance()->getNeededXp($player)."\n\n"
-				);
-				$button = new Button(color::RED.'Close'); 
-//				$button->addImage(Button::IMAGE_TYPE_PATH, "textures/items/stick");
-				$ui->addButton($button);
-                self::$uis['statsui'] = Form::addUI(Main::getInstance(), $ui);
-                Form::showUIbyID(Main::getInstance(), self::$uis['statsui'], $player);
+			    $local = [];
+			    API::getInstance()->getStats($player, function ($data) use ($player, $local){
+			        $ui = new SimpleForm($player->getName()." Stats",
+                        color::YELLOW."\nCurrent Win Streak ".color::BLUE.$data['streak']."\n\n".
+                        color::RED."\nKills: ".color::GREEN.$data['kills'].
+                        color::RED."\nDeaths: ".color::GREEN.$data['deaths'].
+                        color::RED."\nK/D Ratio: ".color::GREEN.$data['kdr'].
+                        color::RED."\n\n\nLevel: ".color::GREEN.$data['level'].
+                        color::RED."\nTotal XP: ".color::GREEN.$data['totalXp'].
+                        color::RED."\nXp needed to level up: ".color::GREEN.$data['xpTo']."\n\n"
+                        );
+			        $button = new Button(color::RED."Close");
+			        $ui->addButton($button);
+			        $local['statsui'] = Form::addUI(Main::getInstance(), $ui);
+                    Form::showUIbyID(Main::getInstance(), $local['statsui'], $player);
+                });
 				break;
 				
 			default;
