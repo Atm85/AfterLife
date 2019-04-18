@@ -36,4 +36,17 @@
           SELECT * FROM afterlife WHERE uuid = :uuid;
 -- #    }
 -- #  }
+-- #  { update
+-- #    { deaths
+-- #      :uuid string
+-- #      :deaths string
+          UPDATE afterlife SET deaths=:deaths, streak=0 WHERE uuid=:uuid;
+-- #    }
+-- #    { kills
+-- #      :uuid string
+-- #      :kills string
+-- #      :streak string
+          UPDATE afterlife SET kills=:kills, streak=:streak WHERE uuid=:uuid;
+-- #    }
+-- #  }
 -- #}

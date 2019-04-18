@@ -38,11 +38,19 @@ class API {
     /** @var API */
 	public static $instance;
 
-	/** @var GetData */
-	private $data;
+//	/** @var GetData */
+//	private $data;
 
 	/** @var GetStats */
 	private $stats;
+
+	/** @var array */
+	private $data = [
+	    /*0*/'kills',
+        /*1*/'deaths',
+        /*2*/'xp',
+        /*3*/'level'
+    ];
 
 	public static function getInstance(): API{
 		return self::$instance;
@@ -50,8 +58,10 @@ class API {
 
 	public function __construct(Main $plugin) {
 		self::$instance = $this;
-		$this->data = new GetData($plugin);
+//		$this->data = new GetData($plugin);
 		$this->stats = new GetStats($plugin);
+		$this->data[0] = new KillCounter($plugin);
+		$this->data[1] = new DeathCounter($plugin);
 	}
 
     public function sendStats (Player $player):void {
@@ -94,26 +104,17 @@ class API {
 	 * @param $type
 	 * @return GetData
 	 */
-	public function getData ($type):string {
-		return $this->data->getData($type);
-    }
-
-
-
-
-
-
-
-
+//	public function getData ($type):string {
+//		return $this->data->getData($type);
+//    }
 
     /**
      * Adds 1 to the number of kills
      * @api
      * @param $player
      */
-	public function addKill(string $player):void {
-		$data = new KillCounter(Main::getInstance(), $player);
-		$data->addKill();
+	public function addKill(Player $player):void {
+		$this->data[0]->add($player);
     }
     
     /**
@@ -165,8 +166,7 @@ class API {
      * @param $player
      * @return void
      */
-	public function addDeath (string $player):void {
-        $data = new DeathCounter(Main::getInstance(), $player);
-        $data->addDeath();
+	public function addDeath (Player $player):void {
+        $this->data[1]->add($player);
 	}
 }
