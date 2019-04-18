@@ -1,7 +1,8 @@
 # Important!
 
 If running this plugin from source, you will need the <a href="https://poggit.pmmp.io/p/DEvirion">DEvirion</a> plugin and the virion library
-<a href="https://poggit.pmmp.io/ci/thebigsmileXD/customui/customui">customUI</a> **ONLY** if you wish to use forms as the method to display stats
+<a href="https://poggit.pmmp.io/ci/thebigsmileXD/customui/customui">customUI</a> **ONLY** if you wish to use forms as the method to display stats; 
+**AND** you will need <a href="https://poggit.pmmp.io/ci/poggit/libasynql/libasynql">libasynql</a> if you wish to sync data across all your servers!
 
 # AfterLife Features
 Fully featured kill/death scoring plugin with custom death event!
