@@ -16,13 +16,14 @@ namespace atom\afterlife\handler;
 use atom\afterlife\Main;
 
 # libasynql
+use atom\afterlife\utils\FileManager;
 use poggit\libasynql\libasynql;
 use poggit\libasynql\DataConnector;
 
 
 class DataHandler {
 
-    public static $mysql;
+    /** @var DataConnector */
     public static $database;
 
     public static function create () {
@@ -41,5 +42,9 @@ class DataHandler {
 
     public static function getDatabase() : DataConnector {
         return self::$database;
+    }
+
+    public static function getFileData () {
+        return new FileManager();
     }
 }

@@ -40,14 +40,18 @@ class GetStats{
         $this->uuid = $player->getUniqueId()->toString();
         $path = $this->getPath();
         if ($this->plugin->getConfig()->get('storage-method') !== 'online') {
-            if(is_file($path)) {
-                $data = yaml_parse_file($path);
-                $this->data = $data;
-                $this->kills = $data['kills'];
-                $this->deaths = $data['deaths'];
-            } else {
-                return;
-            }
+            DataHandler::getFileData()->executeSelect($path,
+                function (array $row) use ($callback) {
+                    $data = [];
+                    $data['kills'] = $row['kills'];
+                    $data['deaths'] = $row['deaths'];
+                    $data['kdr'] = $row['ratio'];
+                    $data['totalXp'] = $row['totalXp'];
+                    $data['xpTo'] = $row['neededXp'];
+                    $data['level'] = $row['level'];
+                    $data['streak'] = $row['streak'];
+                    $callback($data);
+                });
         } else {
             DataHandler::getDatabase()->executeSelect("afterlife.select.all", [
                 'uuid' => (string)$this->uuid

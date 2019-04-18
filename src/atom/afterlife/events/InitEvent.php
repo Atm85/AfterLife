@@ -101,7 +101,7 @@ class InitEvent implements Listener {
 
     private function save() {
         if ($this->plugin->config->get('storage-method') !== "online") {
-            yaml_emit_file($this->getPath(), ["name" => $this->player, "level" => 0, "totalXP" => 0, "xp" => 0, "kills" => 0, "deaths" => 0, "streak" => 0, "ratio" => 0]);
+            yaml_emit_file($this->getPath(), ["name" => $this->player, "level" => 0, "totalXp" => 0, "neededXp" => 0, "kills" => 0, "deaths" => 0, "streak" => 0, "ratio" => 0]);
         } else {
             DataHandler::getDatabase()->executeInsert("afterlife.init.player", [
                 'name' => $this->player,
