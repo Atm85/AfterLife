@@ -15,6 +15,7 @@
 namespace atom\afterlife\events;
 
 # events
+use atom\afterlife\Main;
 use pocketmine\event\Listener;
 use pocketmine\event\entity\EntityDamageEvent;
 
@@ -23,22 +24,22 @@ class PlayerDamageEvent implements Listener {
     private $plugin;
 
 
-    public function __construct($plugin) {
+    public function __construct(Main $plugin) {
         $this->plugin = $plugin;
     }
 
     public function onDamage(EntityDamageEvent $event) {
-        $nopvpAtSpawn = $this->plugin->config->get("no-PvP-at-spawn");
-        $nopvpInLevel = $this->plugin->config->get("no-PvP-in-level");
+        $nopvpAtSpawn = $this->plugin->getConfig()->get("no-PvP-at-spawn");
+        $nopvpInLevel = $this->plugin->getConfig()->get("no-PvP-in-level");
 
         if ($nopvpAtSpawn == true) {
-            if ($event->getEntity()->getLevel() == $this->plugin->getServer()->getDefaultLevel()) {
+            if ($event->getEntity()->getLevel() === $this->plugin->getServer()->getDefaultLevel()) {
                 $event->setCancelled();
             } 
         }
         if ($nopvpAtSpawn == false) {
             foreach ($nopvpInLevel as $levels) {
-                if ($event->getEntity()->getLevel() == $this->plugin->getServer()->getLevelByName($levels)) {
+                if ($event->getEntity()->getLevel() === $this->plugin->getServer()->getLevelManager()->getLevelByName($levels)) {
                     $event->setCancelled();
                 }
             }

@@ -23,10 +23,6 @@ class GetStats{
     /** @var string*/
     private $uuid;
 
-    private $data = null;
-    private $kills;
-    private $deaths;
-
     public function __construct(Main $plugin) {
         $this->plugin = $plugin;
     }

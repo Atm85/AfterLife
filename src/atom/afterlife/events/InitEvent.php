@@ -14,6 +14,7 @@
 namespace atom\afterlife\events;
 
 # player instance
+use atom\afterlife\Main;
 use pocketmine\Player;
 
 # position
@@ -33,7 +34,7 @@ class InitEvent implements Listener {
     private $player = null;
     private $uuid = null;
 
-    public function __construct($plugin) {
+    public function __construct(Main $plugin) {
         $this->plugin = $plugin;
     }
 
@@ -43,7 +44,7 @@ class InitEvent implements Listener {
         $this->player = $player->getName();
 
         $files = scandir($this->plugin->getDataFolder() . "players/");
-        if ($this->plugin->config->get('storage-method') === "online") {
+        if ($this->plugin->getConfig()->get('storage-method') === "online") {
             DataHandler::getDatabase()->executeSelect("afterlife.select.player", [
                 'name' => (string)$this->player
             ],
@@ -100,7 +101,7 @@ class InitEvent implements Listener {
     }
 
     private function save() {
-        if ($this->plugin->config->get('storage-method') !== "online") {
+        if ($this->plugin->getConfig()->get('storage-method') !== "online") {
             yaml_emit_file($this->getPath(),
                 [
                     "name" => $this->player,

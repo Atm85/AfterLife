@@ -14,6 +14,7 @@
 namespace atom\afterlife\events;
 
 # player instance
+use atom\afterlife\Main;
 use pocketmine\Player;
 
 # utils
@@ -28,40 +29,37 @@ class CustomDeathEvent implements Listener {
 
     private $plugin;
 
-    public function __construct($plugin) {
+    public function __construct(Main $plugin) {
         $this->plugin = $plugin;
     }
 
     public function onDamage(EntityDamageEvent $event) {
 
-        if ($this->plugin->config->get("death-method") == "custom") {
+        if ($this->plugin->getConfig()->get("death-method") == "custom") {
 
             $victim = $event->getEntity();
             if ($event->getFinalDamage() >= $victim->getHealth()) {
                 $event->setCancelled();
                 if ($victim instanceof Player) {
+                    $level = $this->plugin->getServer()->getDefaultLevel()->getSafeSpawn();
                     $victim->setHealth($victim->getMaxHealth());
                     $victim->setFood(20);
-                    $victim->teleport($this->plugin->getServer()->getDefaultLevel()->getSafeSpawn(), 0, 0);
+                    $victim->teleport($level, 0, 0);
                     $victim->getInventory()->setHeldItemIndex(1);
                 }
 
                 if ($event instanceof EntityDamageByEntityEvent) {
                     $killer = $event->getDamager();
                     if ($killer instanceof Player && $victim instanceof Player) {
-                        $this->plugin->getAPI()->addKill($killer->getName());
-                        $this->plugin->getAPI()->addDeath($victim->getName());
+                        $this->plugin->getAPI()->addKill($killer);
+                        $this->plugin->getAPI()->addDeath($victim);
                         $this->plugin->getServer()->broadcastMessage(color::GRAY.$victim->getName().color::WHITE." Was Killed by ".color::GRAY.$killer->getName());
                     }
                 } else {
-                    /**
-                     * @author TheWalker0
-                     * Fixing a bug that i couldnt reproduce
-                     */
                     if ($victim instanceof Player) {
-                        $this->plugin->getAPI()->addDeath($victim->getName());
-                        if ($this->plugin->config->get("use-levels") == true) {
-                            $this->plugin->getAPI()->removeXp($victim->getName(), $this->plugin->config->get("loose-level-xp-amount"));
+                        $this->plugin->getAPI()->addDeath($victim);
+                        if ($this->plugin->getConfig()->get("use-levels") === true) {
+                            $this->plugin->getAPI()->removeXp($victim, $this->plugin->getConfig()->get("loose-level-xp-amount"));
                         }
                     }
                 }

@@ -14,6 +14,7 @@
 namespace atom\afterlife\events;
 
 # events
+use atom\afterlife\Main;
 use pocketmine\event\Listener;
 use pocketmine\event\entity\EntityLevelChangeEvent;
 
@@ -21,7 +22,7 @@ class LevelChangeEvent implements Listener {
 
     private $plugin;
 
-    public function __construct($plugin) {
+    public function __construct(Main $plugin) {
         $this->plugin = $plugin;
     }
 
