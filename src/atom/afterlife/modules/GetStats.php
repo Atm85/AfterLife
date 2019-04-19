@@ -43,11 +43,18 @@ class GetStats{
             DataHandler::getFileData()->executeSelect($path,
                 function (array $row) use ($callback) {
                     $data = [];
+                    if ($row['deaths'] > 0){
+                        $ratio = round(($row['kills']/$row['deaths']), 1);
+                    } else {
+                        $ratio = 1;
+                    }
+                    $xpTo = abs($this->plugin->getConfig()->get("xp-levelup-amount") - $data['neededXp']);
                     $data['kills'] = $row['kills'];
                     $data['deaths'] = $row['deaths'];
-                    $data['kdr'] = $row['ratio'];
+                    $data['kdr'] = $ratio;
                     $data['totalXp'] = $row['totalXp'];
-                    $data['xpTo'] = $row['neededXp'];
+                    $data['xpTo'] = $xpTo;
+                    $data['rawXp'] = $row['neededXp'];
                     $data['level'] = $row['level'];
                     $data['streak'] = $row['streak'];
                     $callback($data);
@@ -59,11 +66,18 @@ class GetStats{
                 function (array $rows) use ($callback) {
                     $data = [];
                     foreach ($rows as $row) {
+                        if ($row['deaths'] > 0){
+                            $ratio = round(($row['kills']/$row['deaths']), 1);
+                        } else {
+                            $ratio = 1;
+                        }
+                        $xpTo = abs($this->plugin->getConfig()->get("xp-levelup-amount") - $row['neededXp']);
                         $data['kills'] = $row['kills'];
                         $data['deaths'] = $row['deaths'];
-                        $data['kdr'] = $row['ratio'];
+                        $data['kdr'] = $ratio;
                         $data['totalXp'] = $row['totalXp'];
-                        $data['xpTo'] = $row['neededXp'];
+                        $data['xpTo'] = $xpTo;
+                        $data['rawXp'] = $row['neededXp'];
                         $data['level'] = $row['level'];
                         $data['streak'] = $row['streak'];
                     }

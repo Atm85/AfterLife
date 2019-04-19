@@ -14,99 +14,83 @@
 
 namespace atom\afterlife\modules;
 
-use atom\afterlife\handler\DataHandler as mySQL;
+use atom\afterlife\handler\DataHandler;
+use atom\afterlife\Main;
+use pocketmine\Player;
 
 class xpCalculator {
 
+    /** @var Main */
     private $plugin;
-    private $level;
-    private $xp;
-    private $totalXp;
-    private $kills;
-    private $deaths;
-    private $killStreak;
-    private $ratio;
-    private $data = null;
-    private $player = null;
 
-    public function __construct($plugin, $player) {
+    /** @var string */
+    private $playername;
+
+    /** @var string */
+    private $uuid;
+
+    public function __construct(Main $plugin) {
         $this->plugin = $plugin;
-        $this->player = $player;
-        $path = $this->getPath();
-        if ($this->plugin->config->get('type') !== "online") {
-            if(is_file($path)) {
-                $data = yaml_parse_file($path);
-                $this->data = $data;
-                $this->level = $data["level"];
-                $this->xp = $data["xp"];
-                $this->totalXp = $data["totalXP"];
-                $this->kills = $data["kills"];
-                $this->deaths = $data["deaths"];
-                $this->killStreak = $data["streak"];
-                $this->ratio = $data["ratio"];
-            } else {
-                return;
+    }
+
+    public function add (Player $player, int $amount) :void {
+        $this->query($player, function ($data) use ($player, $amount) {
+            $data['totalXp'] += $amount;
+            $data['rawXp'] += $amount;
+            $this->save($player, $data);
+            if ($data['rawXp'] >= $this->plugin->getConfig()->get("xp-levelup-amount")) {
+                $this->plugin->getAPI()->addLevel($player, 1);
+                $data['rawXp'] = 0;
+                $this->save($player, $data);
             }
+        });
+    }
+
+    public function remove (Player $player, int $amount) :void {
+        $this->query($player, function ($data) use ($player, $amount) {
+            if ($data['rawXp'] > 0) {
+                if ($amount > $data['rawXp']) {
+                    $dif = abs($amount - $data['rawXp']);
+                    $data['rawXp'] -= $dif;
+                    $data['totalXp'] -= $dif;
+                } else {
+                    $data['rawXp'] -= $amount;
+                    $data['totalXp'] -= $amount;
+                }
+                $this->save($player, $data);
+            }
+        });
+    }
+
+    private function query (Player $player, callable $callback) :void {
+        $this->playername = $player->getName();
+        $this->uuid = $player->getUniqueId()->toString();
+        $this->plugin->getAPI()->getStats($player, function ($data) use ($callback) {
+            $callback($data);
+        });
+    }
+
+    private function getPath() :string {
+        return $this->plugin->getDataFolder() . "players/" . $this->playername . ".yml";
+    }
+
+    private function save (Player $player, array $data) :void {
+        if ($this->plugin->getConfig()->get('storage-method') !== "online") {
+            yaml_emit_file($this->getPath(), [
+                'name' => $data['name'],
+                'level' => $data['level'],
+                'totalXp' => $data['totalXp'],
+                'neededXp' => $data['rawXp'],
+                'kills' => $data['kills'],
+                'deaths' => $data['deaths'],
+                'streak' => $data['streak']
+            ]);
         } else {
-            $sql = "SELECT * FROM afterlife;";
-            $result = mysqli_query(mySQL::$database, $sql);
-            $check = mysqli_num_rows($result);
-            $db = array();
-            $names = array();
-            if ($check > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $db[] = $row;
-                }
-                foreach ($db as $kay => $value) {
-                    array_push($names, $value['name']);
-                }
-                if (in_array($this->player, $names)) {
-                    $x = array_search($this->player, $names);
-                    $this->kills = $db[$x]['kills'];
-                    $this->deaths = $db[$x]['deaths'];
-                    $this->ratio = $db[$x]['ratio'];
-                    $this->xp = $db[$x]['xp'];
-                    $this->totalXp = $db[$x]['totalXP'];
-                    $this->level = $db[$x]['level'];
-                    $this->killStreak = $db[$x]['streak'];
-                }
-            }
-        }
-    }
-
-    public function addXp($amount) {
-        $this->xp += $amount;
-        $this->totalXp += $amount;
-        $this->save();
-        if ($this->xp >= $this->plugin->config->get("xp-levelup-ammount")) {
-            $this->plugin->getAPI()->addLevel($this->player, 1);
-        }
-    }
-
-    public function removeXp ($amount) {
-        if ($this->xp > 0) {
-            if ($amount > $this->xp) {
-                $dif = abs($amount - $this->xp);
-                $this->xp -= $dif;
-                $this->totalXp -= $dif; 
-            } else {
-                $this->xp -= $amount;
-                $this->totalXp -= $amount;
-            }
-            $this->save();
-        }
-    }
-
-    public function getPath() {
-        return $this->plugin->getDataFolder() . "players/" . $this->player . ".yml";
-    }
-
-    public function save() {
-        if ($this->plugin->config->get('type') !== "online") {
-            yaml_emit_file($this->getPath(), ["name" => $this->player, "level" => $this->level, "totalXP" => $this->totalXp, "xp" => $this->xp, "kills" => $this->kills, "deaths" => $this->deaths, "streak" => $this->killStreak, "ratio" => $this->ratio]);
-        } else {
-            $sql = "UPDATE afterlife SET totalXP='$this->totalXp', xp='$this->xp' WHERE name='$this->player'";
-            mysqli_query(mySQL::$database, $sql);
+            DataHandler::getDatabase()->executeChange("afterlife.update.xp",[
+                'totalXp'=>$data['totalXp'],
+                'xpTo'=>$data['rawXp'],
+                'uuid'=>$player->getUniqueId()->toString()
+            ]);
         }
     }
 }

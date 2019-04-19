@@ -13,88 +13,68 @@
 
 namespace atom\afterlife\modules;
 
-use atom\afterlife\handler\DataHandler as mySQL;
+use atom\afterlife\handler\DataHandler;
+use atom\afterlife\Main;
+use pocketmine\Player;
 
 class LevelCounter {
 
+    /** @var Main */
     private $plugin;
-    private $level;
-    private $xp;
-    private $totalXp;
-    private $kills;
-    private $deaths;
-    private $killStreak;
-    private $ratio;
-    private $data = null;
-    private $player = null;
 
-    public function __construct($plugin, $player) {
+    /** @var string */
+    private $playername;
+
+    /** @var string */
+    private $uuid;
+
+    public function __construct(Main $plugin) {
         $this->plugin = $plugin;
-        $this->player = $player;
-        $path = $this->getPath();
-        if ($this->plugin->config->get('type') !== "online") {
-            if(is_file($path)) {
-                $data = yaml_parse_file($path);
-                $this->data = $data;
-                $this->level = $data["level"];
-                $this->xp = $data["xp"];
-                $this->totalXp = $data["totalXP"];
-                $this->kills = $data["kills"];
-                $this->deaths = $data["deaths"];
-                $this->killStreak = $data["streak"];
-                $this->ratio = $data["ratio"];
-            } else {
-                return;
-            }
+    }
+
+    public function add(Player $player, int $amount) :void {
+        $this->query($player, function ($data) use ($player, $amount) {
+            $data['level'] += $amount;
+            $player->addTitle("§k§eiii§r §bLevelup §k§eiii§r", "you are now level§4 ".$data['level']);
+            $this->save($player, $data);
+        });
+    }
+
+    public function remove(Player $player, int $amount) :void {
+        $this->query($player, function ($data) use ($player, $amount) {
+           $data['level'] -= $amount;
+           $this->save($player, $data);
+        });
+    }
+
+    private function query (Player $player, callable $callback) :void {
+        $this->playername = $player->getName();
+        $this->uuid = $player->getUniqueId()->toString();
+        $this->plugin->getAPI()->getStats($player, function ($data) use ($callback) {
+            $callback($data);
+        });
+    }
+
+    private function getPath() :string {
+        return $this->plugin->getDataFolder() . "players/" . $this->playername . ".yml";
+    }
+
+    private function save (Player $player, array $data) :void {
+        if ($this->plugin->getConfig()->get('storage-method') !== "online") {
+            yaml_emit_file($this->getPath(), [
+                'name' => $data['name'],
+                'level' => $data['level'],
+                'totalXp' => $data['totalXp'],
+                'neededXp' => $data['xpTo'],
+                'kills' => $data['kills'],
+                'deaths' => $data['deaths'],
+                'streak' => $data['streak']
+            ]);
         } else {
-            $sql = "SELECT * FROM afterlife;";
-            $result = mysqli_query(mySQL::$database, $sql);
-            $check = mysqli_num_rows($result);
-            $db = array();
-            $names = array();
-            if ($check > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $db[] = $row;
-                }
-                foreach ($db as $kay => $value) {
-                    array_push($names, $value['name']);
-                }
-                if (in_array($this->player, $names)) {
-                    $x = array_search($this->player, $names);
-                    $this->kills = $db[$x]['kills'];
-                    $this->deaths = $db[$x]['deaths'];
-                    $this->ratio = $db[$x]['ratio'];
-                    $this->xp = $db[$x]['xp'];
-                    $this->level = $db[$x]['level'];
-                    $this->killStreak = $db[$x]['streak'];
-                }
-            }
-        }
-    }
-
-    public function addlevel($amount) {
-        $this->level += $amount;
-        $this->xp = 0;
-        $this->save();
-        $player = $this->plugin->getServer()->getPlayerExact($this->player);
-        $player->addTitle("§k§eiii§r §bLevelup §k§eiii§r", "you are now level§4 ".$this->level);
-    }
-
-    public function removelevel($amount) {
-        $this->level -= $amount;
-        $this->save();
-    }
-
-    public function getPath() {
-        return $this->plugin->getDataFolder() . "players/" . $this->player . ".yml";
-    }
-
-    public function save() {
-        if ($this->plugin->config->get('type') !== "online") {
-            yaml_emit_file($this->getPath(), ["name" => $this->player, "level" => $this->level, "totalXP"=>$this->totalXp, "xp" => 0, "kills" => $this->kills, "deaths" => $this->deaths, "streak" => $this->killStreak, "ratio" => $this->ratio]);
-        } else {
-            $sql = "UPDATE afterlife SET level='$this->level', xp='0' WHERE name='$this->player'";
-            mysqli_query(mySQL::$database, $sql);
+            DataHandler::getDatabase()->executeChange("afterlife.update.level",[
+                'level'=>$data['level'],
+                'uuid'=>$player->getUniqueId()->toString()
+            ]);
         }
     }
 }

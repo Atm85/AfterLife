@@ -8,7 +8,6 @@
             uuid varchar(36) unique NOT NULL,
             kills int(5) UNSIGNED NOT NULL,
             deaths int(5) UNSIGNED NOT NULL,
-            ratio FLOAT UNSIGNED NOT NULL,
             totalXp int(5) UNSIGNED NOT NULL,
             neededXp int(5) UNSIGNED NOT NULL,
             level int(5) UNSIGNED NOT NULL,
@@ -19,10 +18,10 @@
 -- #      :name string
 -- #      :uuid string
           INSERT INTO afterlife(
-            name, uuid ,kills, deaths, ratio, totalXP, neededXp, level, streak
+            name, uuid ,kills, deaths,  totalXP, neededXp, level, streak
           )
           values (
-            :name, :uuid, 0, 0, 0, 0, 1000, 0, 0
+            :name, :uuid, 0, 0, 0, 0, 0, 0
           );
 -- #    }
 -- #  }
@@ -47,6 +46,17 @@
 -- #      :kills string
 -- #      :streak string
           UPDATE afterlife SET kills=:kills, streak=:streak WHERE uuid=:uuid;
+-- #    }
+-- #    { xp
+-- #      :uuid string
+-- #      :xpTo string
+-- #      :totalXp string
+          UPDATE afterlife SET neededXp=:xpTo, totalXp=:totalXp WHERE uuid=:uuid;
+-- #    }
+-- #    { level
+-- #      :uuid string
+-- #      :level string
+          UPDATE afterlife SET level=:level WHERE uuid=:uuid;
 -- #    }
 -- #  }
 -- #}

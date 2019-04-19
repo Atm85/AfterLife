@@ -62,6 +62,8 @@ class API {
 		$this->stats = new GetStats($plugin);
 		$this->data[0] = new KillCounter($plugin);
 		$this->data[1] = new DeathCounter($plugin);
+		$this->data[2] = new xpCalculator($plugin);
+		$this->data[3] = new LevelCounter($plugin);
 	}
 
     public function sendStats (Player $player):void {
@@ -123,9 +125,8 @@ class API {
 	 * @param $amount
 	 * @param $player
 	 */
-	public function addXp (string $player, ?int $amount):void {
-		$data = new xpCalculator(Main::getInstance(), $player);
-		$data->addXp($amount);
+	public function addXp (Player $player, ?int $amount):void {
+		$this->data[2]->add($player, $amount);
 	}
 
 	/**
@@ -134,9 +135,8 @@ class API {
 	 * @param $player
 	 * @param $amount
 	 */
-	public function removeXp (string $player, ?int $amount):void {
-		$data = new xpCalculator(Main::getInstance(), $player);
-		$data->removeXp($amount);
+	public function removeXp (Player $player, ?int $amount):void {
+		$this->data[2]->remove($player, $amount);
     }
     
     /**
@@ -145,9 +145,8 @@ class API {
      * @param $player
      * @param $amount
      */
-    public function addLevel (string $player, ?int $amount):void {
-		$data = new LevelCounter(Main::getInstance(), $player);
-		$data->addLevel($amount);
+    public function addLevel (Player $player, ?int $amount):void {
+		$this->data[3]->add($player, $amount);
 	}
 
     /**
@@ -156,9 +155,8 @@ class API {
      * @param $player
      * @param $amount
      */
-	public function removeLevel (string $player, ?int $amount):void {
-		$data = new LevelCounter(Main::getInstance(), $player);
-		$data->removeLevel($amount);
+	public function removeLevel (Player $player, ?int $amount):void {
+		$this->data[3]->remove($player, $amount);
     }
     
     /**
