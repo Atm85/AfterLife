@@ -7,6 +7,6 @@ projects:
     libs:
       - src: poggit/libasynql/libasynql
         version: ^3.0
-      - src: thebigsmileXD/customui/customui
-        version: ^3.0.0
+      - src: Atomization/gui
+        version: ^1.0.0
 ...
