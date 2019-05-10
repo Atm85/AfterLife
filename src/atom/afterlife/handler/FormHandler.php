@@ -18,13 +18,12 @@ namespace atom\afterlife\handler;
 # main files
 use atom\gui\GUI;
 use atom\gui\type\ModalGui;
+use atom\gui\type\SimpleGui;
 use pocketmine\Player;
 use pocketmine\Server;
 
 # utils
 use pocketmine\utils\TextFormat as color;
-
-# customui
 
 use atom\afterlife\Main;
 use atom\afterlife\API;
@@ -39,7 +38,7 @@ class FormHandler {
             case 'PocketMine-MP':
                 $local = [];
                 API::getInstance()->getStats($player, function ($data) use ($player, $local){
-                    $gui = new ModalGui();
+                    $gui = new SimpleGui();
                     $gui->setTitle($player->getName()." Stats!");
                     $gui->setContent(
                         color::YELLOW."\nCurrent Win Streak ".color::BLUE.$data['streak']."\n\n".
@@ -50,7 +49,7 @@ class FormHandler {
                         color::RED."\nTotal XP: ".color::GREEN.$data['totalXp'].
                         color::RED."\nXp needed to level up: ".color::GREEN.$data['xpTo'].""
                     );
-                    $gui->setButton1("close");
+                    $gui->addButton("close");
                     GUI::register("stats", $gui);
                     GUI::send($player, "stats");
                 });
